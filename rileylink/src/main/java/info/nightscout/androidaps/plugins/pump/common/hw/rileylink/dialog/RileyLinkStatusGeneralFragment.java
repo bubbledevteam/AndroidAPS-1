@@ -58,6 +58,10 @@ public class RileyLinkStatusGeneralFragment extends DaggerFragment implements Re
     private TextView lastDeviceContact;
     private TextView firmwareVersion;
 
+    private View lytOrange;
+    private TextView orangeBattery;
+    private TextView orangeVoltage;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.rileylink_status_general, container, false);
@@ -82,6 +86,9 @@ public class RileyLinkStatusGeneralFragment extends DaggerFragment implements Re
         this.lastUsedFrequency = getActivity().findViewById(R.id.rls_t1_last_used_frequency);
         this.lastDeviceContact = getActivity().findViewById(R.id.rls_t1_last_device_contact);
         this.firmwareVersion = getActivity().findViewById(R.id.rls_t1_firmware_version);
+        this.lytOrange = getActivity().findViewById(R.id.lyt_orange);
+        this.orangeBattery = getActivity().findViewById(R.id.rls_t1_battery);
+        this.orangeVoltage = getActivity().findViewById(R.id.rls_t1_voltage);
 
         refreshData();
     }
@@ -106,14 +113,27 @@ public class RileyLinkStatusGeneralFragment extends DaggerFragment implements Re
         this.connectionError.setText(rileyLinkError == null ? PLACEHOLDER : rh.gs(rileyLinkError.getResourceId(targetDevice)));
 
 
-        if (rileyLinkServiceData.isOrange && rileyLinkServiceData.versionOrangeFirmware!=null) {
+        if (rileyLinkServiceData.isOrange && rileyLinkServiceData.versionOrangeFirmware != null) {
             this.firmwareVersion.setText(rh.gs(R.string.rileylink_firmware_version_value_orange,
-                            rileyLinkServiceData.versionOrangeFirmware,
-                            Optional.ofNullable(rileyLinkServiceData.versionOrangeHardware).orElse(PLACEHOLDER)));
+                    rileyLinkServiceData.versionOrangeFirmware,
+                    Optional.ofNullable(rileyLinkServiceData.versionOrangeHardware).orElse(PLACEHOLDER)));
         } else {
             this.firmwareVersion.setText(rh.gs(R.string.rileylink_firmware_version_value,
                     Optional.ofNullable(rileyLinkServiceData.versionBLE113).orElse(PLACEHOLDER),
                     Optional.ofNullable(rileyLinkServiceData.versionCC110).orElse(PLACEHOLDER)));
+        }
+        if (rileyLinkServiceData.isOrange) {
+            lytOrange.setVisibility(View.VISIBLE);
+            if (rileyLinkServiceData.orangeVoltage != null) {
+                orangeBattery.setText(rileyLinkServiceData.orangeBattery + "%");
+                orangeVoltage.setText(rileyLinkServiceData.orangeVoltage);
+            } else {
+                orangeBattery.setText("-");
+                orangeVoltage.setText("-");
+            }
+
+        } else {
+            lytOrange.setVisibility(View.GONE);
         }
 
         RileyLinkPumpDevice rileyLinkPumpDevice = (RileyLinkPumpDevice) activePlugin.getActivePump();

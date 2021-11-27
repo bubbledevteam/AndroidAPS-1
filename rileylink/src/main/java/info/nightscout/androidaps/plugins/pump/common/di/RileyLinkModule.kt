@@ -2,6 +2,7 @@ package info.nightscout.androidaps.plugins.pump.common.di
 
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
+import info.nightscout.androidaps.plugins.pump.common.dialog.OrangeLinkConfigActivity
 import info.nightscout.androidaps.plugins.pump.common.dialog.RileyLinkBLEConfigActivity
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.RFSpy
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.RileyLinkBLE
@@ -38,6 +39,6 @@ abstract class RileyLinkModule {
 
     @ContributesAndroidInjector abstract fun contributesRileyLinkStatusActivity(): RileyLinkStatusActivity
     @ContributesAndroidInjector abstract fun contributesRileyLinkBLEConfigActivity(): RileyLinkBLEConfigActivity
-
+    @ContributesAndroidInjector abstract fun contributesOrangeLinkConfigActivity(): OrangeLinkConfigActivity
     @ContributesAndroidInjector abstract fun contributesRileyLinkService(): RileyLinkService
 }

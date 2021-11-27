@@ -1,0 +1,11 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:left="1dp"
+        android:right="1dp"
+        android:top="1dp"
+        android:bottom="1dp"
+        android:drawable="@drawable/orangelink"
+        android:width="48dp"
+        android:height="48dp">
+    </item>
+</layer-list>

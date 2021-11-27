@@ -92,4 +92,15 @@
     <string name="orange_use_scanning_level">Use Scanning</string>
     <string name="orange_use_scanning_level_summary">Scan before connecting to OrangeLink, it should improve connections (can also be used with other RileyLink clones, if needed)</string>
     <string name="key_orange_use_scanning" translatable="false">pref_orange_use_scanning</string>
+
+    <string name="orange_test_model"> Test Commands</string>
+    <string name="orange_configure">Configure Commands</string>
+    <string name="orange_enable_led">Enable Connection State LED</string>
+    <string name="orange_enable_vibrator">Enable Connection State Vibrator</string>
+    <string name="orange_vibrator_test">Vibrator Test</string>
+    <string name="orange_red_test">RED LED Test</string>
+    <string name="orange_yellow_test">Yellow LED Test</string>
+    <string name="orange_battery">Battery:</string>
+    <string name="orange_voltage">Voltage:</string>
+    <string name="find_devices">Find Devices</string>
 </resources>

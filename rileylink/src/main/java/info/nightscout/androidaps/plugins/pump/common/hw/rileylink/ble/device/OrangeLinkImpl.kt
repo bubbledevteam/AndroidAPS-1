@@ -7,11 +7,16 @@ import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
+import android.content.Intent
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.Message
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import info.nightscout.androidaps.events.EventRefreshOverview
 import info.nightscout.androidaps.logging.AAPSLogger
 import info.nightscout.androidaps.logging.LTag
+import info.nightscout.androidaps.plugins.bus.RxBus
+import info.nightscout.androidaps.plugins.pump.common.dialog.OrangeLinkConfigActivity
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.RileyLinkUtil
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.RileyLinkBLE
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.data.GattAttributes
@@ -22,13 +27,16 @@ import info.nightscout.androidaps.utils.sharedPreferences.SP
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
+import java.lang.Long.parseLong
 
 @Singleton
 class OrangeLinkImpl @Inject constructor(
     var aapsLogger: AAPSLogger,
     var rileyLinkServiceData: RileyLinkServiceData,
     var rileyLinkUtil: RileyLinkUtil,
-    var sp: SP) {
+    var rxBus: RxBus,
+    var sp: SP
+) {
 
     lateinit var rileyLinkBLE: RileyLinkBLE
 
@@ -36,22 +44,46 @@ class OrangeLinkImpl @Inject constructor(
         if (characteristic.uuid.toString() == GattAttributes.CHARA_NOTIFICATION_ORANGE) {
             val data = characteristic.value
             val first = 0xff and data[0].toInt()
-            aapsLogger.info(LTag.PUMPBTCOMM,
-                "OrangeLinkImpl: onCharacteristicChanged " + ByteUtil.shortHexString(characteristic.value) + "=====" + first)
-            val fv = data[3].toString() + "." + data[4]
-            val hv = data[5].toString() + "." + data[6]
-            rileyLinkServiceData.versionOrangeFirmware = fv
-            rileyLinkServiceData.versionOrangeHardware = hv
+            val two = 0xff and data[1].toInt()
+            aapsLogger.info(
+                LTag.PUMPBTCOMM,
+                "OrangeLinkImpl: onCharacteristicChanged " + ByteUtil.shortHexString(characteristic.value) + "=====" + first + "===" + two
+            )
+            if (first == 221 && two == 1) {
+                val led = data[3].toInt()
+                val vibrator = data[4].toInt()
+                var intent = Intent(OrangeLinkConfigActivity.ACTION_ORANGE_CONFIGURE);
+                intent.putExtra("led",led)
+                intent.putExtra("vibrator",vibrator)
+                LocalBroadcastManager.getInstance(rileyLinkBLE.context).sendBroadcast(intent)
+                aapsLogger.info(
+                    LTag.PUMPBTCOMM,
+                    "OrangeLinkImpl: send EventBucketedDataCreated "
+                )
+            }
+            if (first == 221 && two == 254) {
+                val fv = data[3].toString() + "." + data[4]
+                val hv = data[5].toString() + "." + data[6]
+                var s = ByteUtil.shortHexString(data[7]) + ByteUtil.shortHexString(data[8])
+                val voltage = parseLong(s, 16)
+                val battery = data[9].toInt();
+                var svoltage: String = String.format("%.1f", (voltage / 1000f)).toString();
+                rileyLinkServiceData.versionOrangeFirmware = fv
+                rileyLinkServiceData.versionOrangeHardware = hv
+                rileyLinkServiceData.orangeBattery = battery
+                rileyLinkServiceData.orangeVoltage = svoltage
+                aapsLogger.info(LTag.PUMPBTCOMM, "OrangeLink: Firmware: ${fv}, Hardware: $hv,voltage:${rileyLinkServiceData.orangeVoltage}, batteyr:${battery}, s:${s},")
+            }
 
-            aapsLogger.info(LTag.PUMPBTCOMM, "OrangeLink: Firmware: ${fv}, Hardware: $hv")
         }
     }
-
 
     fun resetOrangeLinkData() {
         rileyLinkServiceData.isOrange = false
         rileyLinkServiceData.versionOrangeFirmware = null
         rileyLinkServiceData.versionOrangeHardware = null
+        rileyLinkServiceData.orangeBattery = 0
+        rileyLinkServiceData.orangeVoltage = null
     }
 
     /**
@@ -62,7 +94,6 @@ class OrangeLinkImpl @Inject constructor(
             rileyLinkServiceData.isOrange = true
         }
     }
-
 
     fun enableNotifications(): Boolean {
         aapsLogger.info(LTag.PUMPBTCOMM, "OrangeLinkImpl::enableNotifications")
@@ -77,7 +108,6 @@ class OrangeLinkImpl @Inject constructor(
         }
         return true
     }
-
 
     private fun buildScanFilters(): List<ScanFilter> {
         val scanFilterList: MutableList<ScanFilter> = mutableListOf() //ArrayList<*> = ArrayList<Any>()
@@ -135,15 +165,15 @@ class OrangeLinkImpl @Inject constructor(
         }
     }
 
-/*
-    private val mLeScanCallback = LeScanCallback { device, _, _ ->
-        if (rileyLinkServiceData.rileyLinkAddress.equals(device.address)) {
-            stopScan()
-            rileyLinkBLE.rileyLinkDevice = device
-            rileyLinkBLE.connectGattInternal()
+    /*
+        private val mLeScanCallback = LeScanCallback { device, _, _ ->
+            if (rileyLinkServiceData.rileyLinkAddress.equals(device.address)) {
+                stopScan()
+                rileyLinkBLE.rileyLinkDevice = device
+                rileyLinkBLE.connectGattInternal()
+            }
         }
-    }
-*/
+    */
     private val handler: Handler = object : Handler(HandlerThread(OrangeLinkImpl::class.java.simpleName + "Handler").also { it.start() }.looper) {
         override fun handleMessage(msg: Message) {
             super.handleMessage(msg)
@@ -189,6 +219,7 @@ class OrangeLinkImpl @Inject constructor(
     }
 
     companion object {
+
         const val TIME_OUT = 90 * 1000
         const val TIME_OUT_WHAT = 0x12
     }

@@ -1,0 +1,88 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="5dp">
+
+    <!-- Currently selected RileyLink -->
+
+
+    <TextView
+        style="@style/TextAppearance.AppCompat.Title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="@string/orange_configure"
+        android:textColor="@android:color/holo_blue_dark" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:orientation="vertical">
+
+
+        <CheckBox
+            android:id="@+id/orangeEnableLed"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:text="@string/orange_enable_led"
+            android:textSize="16sp" />
+
+        <CheckBox
+            android:id="@+id/orangeEnableVibrator"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:text="@string/orange_enable_vibrator"
+            android:textSize="16sp" />
+
+
+    </LinearLayout>
+
+    <TextView
+        style="@style/TextAppearance.AppCompat.Title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="@string/orange_test_model"
+        android:textColor="@android:color/holo_blue_dark" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:orientation="vertical">
+
+
+        <CheckBox
+            android:id="@+id/orangeTestVibrator"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:text="@string/orange_vibrator_test"
+            android:textSize="16sp" />
+
+        <CheckBox
+            android:id="@+id/orangeTestRedLed"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:text="@string/orange_red_test"
+            android:textSize="16sp" />
+
+        <CheckBox
+            android:id="@+id/orangeTestYellowLed"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:text="@string/orange_yellow_test"
+            android:textSize="16sp" />
+
+
+        <Button
+            android:id="@+id/findDev"
+            android:layout_width="150dp"
+            android:layout_height="50dp"
+            android:text="@string/find_devices"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+</LinearLayout>
+

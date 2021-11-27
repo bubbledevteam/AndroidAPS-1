@@ -412,4 +412,40 @@ public class RFSpy {
         if (this.currentFrequencyMHz != null)
             this.setBaseFrequency(this.currentFrequencyMHz);
     }
+
+    public byte[] writeToOrange(byte[] bytes, int responseTimeout_ms) {
+        // FIXME drain read queue?
+        byte[] junkInBuffer = reader.poll(0);
+
+        while (junkInBuffer != null) {
+            aapsLogger.warn(LTag.PUMPBTCOMM, ThreadUtil.sig() + " OrangeLinkImpl writeToData: " +
+                    "draining read " +
+                    "queue, found this: "
+                    + ByteUtil.shortHexString(junkInBuffer));
+            junkInBuffer = reader.poll(0);
+        }
+
+        // prepend length, and send it.
+
+        aapsLogger.debug(LTag.PUMPBTCOMM, String.format(Locale.ENGLISH, " OrangeLinkImpl " +
+                        "writeToData (raw=%s)",
+                ByteUtil.shortHexString(bytes)));
+
+        BLECommOperationResult writeCheck =
+                rileyLinkBle.writeCharacteristic_blocking(UUID.fromString(GattAttributes.SERVICE_NORDIC_UART),
+                        UUID.fromString(GattAttributes.CHARA_NORDIC_RX),
+                        bytes);
+        if (writeCheck.resultCode != BLECommOperationResult.RESULT_SUCCESS) {
+            aapsLogger.error(LTag.PUMPBTCOMM,
+                    " OrangeLinkImpl BLE Write operation failed, code=" + writeCheck.resultCode);
+            return null; // will be a null (invalid) response
+        }
+
+
+        return reader.poll(responseTimeout_ms);
+    }
+
+    public byte[] writeToOrange(byte[] bytes) {
+        return writeToOrange(bytes, 1000);
+    }
 }

@@ -54,7 +54,8 @@ public class RileyLinkServiceData {
     public boolean isOrange;
     public String versionOrangeFirmware;
     public String versionOrangeHardware;
-
+    public int orangeBattery;
+    public String orangeVoltage;
     public RileyLinkTargetDevice targetDevice;
 
     // Medtronic Pump

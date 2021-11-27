@@ -64,6 +64,10 @@ public class RileyLinkBLE {
     private Runnable radioResponseCountNotified;
     private boolean mIsConnected = false;
 
+    public Context getContext() {
+        return context;
+    }
+
     @Inject
     public RileyLinkBLE(final Context context) {
         this.context = context;

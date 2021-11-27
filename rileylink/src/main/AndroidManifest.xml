@@ -14,7 +14,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
+        <activity android:name="info.nightscout.androidaps.plugins.pump.common.dialog.OrangeLinkConfigActivity"></activity>
         <activity
             android:name="info.nightscout.androidaps.plugins.pump.common.hw.rileylink.dialog.RileyLinkStatusActivity"
             android:label="@string/title_activity_rileylink_settings"

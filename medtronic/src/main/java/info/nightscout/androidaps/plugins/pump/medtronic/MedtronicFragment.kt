@@ -20,6 +20,7 @@ import info.nightscout.androidaps.logging.AAPSLogger
 import info.nightscout.androidaps.logging.LTag
 import info.nightscout.androidaps.plugins.bus.RxBus
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpDeviceState
+import info.nightscout.androidaps.plugins.pump.common.dialog.OrangeLinkConfigActivity
 import info.nightscout.androidaps.plugins.pump.common.events.EventRefreshButtonState
 import info.nightscout.androidaps.plugins.pump.common.events.EventRileyLinkDeviceStatusChange
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.RileyLinkUtil
@@ -125,6 +126,12 @@ class MedtronicFragment : DaggerFragment() {
                 displayNotConfiguredDialog()
             }
         }
+        binding.org.setOnClickListener {
+            if (medtronicPumpPlugin.rileyLinkService.getRileyLinkBLE().isConnected) {
+                startActivity(Intent(context, OrangeLinkConfigActivity::class.java))
+            }
+            // startActivity(Intent(context, OrangeLinkConfigActivity::class.java))
+        }
     }
 
     @Synchronized
@@ -139,9 +146,9 @@ class MedtronicFragment : DaggerFragment() {
             .toObservable(EventRileyLinkDeviceStatusChange::class.java)
             .observeOn(aapsSchedulers.main)
             .subscribe({
-                aapsLogger.debug(LTag.PUMP, "onStatusEvent(EventRileyLinkDeviceStatusChange): $it")
-                setDeviceStatus()
-            }, fabricPrivacy::logException)
+                           aapsLogger.debug(LTag.PUMP, "onStatusEvent(EventRileyLinkDeviceStatusChange): $it")
+                           setDeviceStatus()
+                       }, fabricPrivacy::logException)
         disposable += rxBus
             .toObservable(EventMedtronicPumpValuesChanged::class.java)
             .observeOn(aapsSchedulers.main)
@@ -158,10 +165,10 @@ class MedtronicFragment : DaggerFragment() {
             .toObservable(EventMedtronicPumpConfigurationChanged::class.java)
             .observeOn(aapsSchedulers.main)
             .subscribe({
-                aapsLogger.debug(LTag.PUMP, "EventMedtronicPumpConfigurationChanged triggered")
-                medtronicPumpPlugin.rileyLinkService.verifyConfiguration()
-                updateGUI()
-            }, fabricPrivacy::logException)
+                           aapsLogger.debug(LTag.PUMP, "EventMedtronicPumpConfigurationChanged triggered")
+                           medtronicPumpPlugin.rileyLinkService.verifyConfiguration()
+                           updateGUI()
+                       }, fabricPrivacy::logException)
         disposable += rxBus
             .toObservable(EventPumpStatusChanged::class.java)
             .observeOn(aapsSchedulers.main)
@@ -253,8 +260,10 @@ class MedtronicFragment : DaggerFragment() {
 
     private fun displayNotConfiguredDialog() {
         context?.let {
-            OKDialog.show(it, rh.gs(R.string.medtronic_warning),
-                rh.gs(R.string.medtronic_error_operation_not_possible_no_configuration), null)
+            OKDialog.show(
+                it, rh.gs(R.string.medtronic_warning),
+                rh.gs(R.string.medtronic_error_operation_not_possible_no_configuration), null
+            )
         }
     }
 
@@ -329,7 +338,8 @@ class MedtronicFragment : DaggerFragment() {
         if (medtronicPumpStatus.batteryType == BatteryType.None || medtronicPumpStatus.batteryVoltage == null) {
             binding.pumpStateBattery.text = "{fa-battery-" + medtronicPumpStatus.batteryRemaining / 25 + "}  "
         } else {
-            binding.pumpStateBattery.text = "{fa-battery-" + medtronicPumpStatus.batteryRemaining / 25 + "}  " + medtronicPumpStatus.batteryRemaining + "%" + String.format("  (%.2f V)", medtronicPumpStatus.batteryVoltage)
+            binding.pumpStateBattery.text =
+                "{fa-battery-" + medtronicPumpStatus.batteryRemaining / 25 + "}  " + medtronicPumpStatus.batteryRemaining + "%" + String.format("  (%.2f V)", medtronicPumpStatus.batteryVoltage)
         }
         warnColors.setColorInverse(binding.pumpStateBattery, medtronicPumpStatus.batteryRemaining.toDouble(), 25.0, 10.0)
 
